@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>RHutils - Home</title>
+    </head>
+    <body>
+        <!-- <h1>Olá — Flask funcionando!</h1>
+        <button>
+            <a href="{{ url_for('logout') }}">Desconectar</a>
+        </button> -->
+        <h1>Bem-vindo, {{ session['user'] }}!</h1>
+        <button>
+            <a href="{{ url_for('logout') }}">Sair</a>
+        </button>
+
+        <div>
+            <h2>Recursos</h2>
+            <ul>
+                <li><a href="{{ url_for('mudar_campos') }}">Alterar campos Colaborador</a></li>
+                <li><a href="#">Recurso 2</a></li>
+                <li><a href="#">Recurso 3</a></li>
+            </ul>
+        </div>
+    </body>
+</html>

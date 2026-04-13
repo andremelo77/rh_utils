@@ -1,0 +1,258 @@
+/* Estilos específicos da tela de login */
+
+.page-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(180deg, #4a3a75 0%, #3c2d55 45%, #c6b0f1 100%);
+}
+
+.login-panel {
+  width: min(420px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 28px 80px rgba(60, 45, 85, 0.14);
+  padding: 36px 32px;
+  border: 1px solid rgba(60, 45, 85, 0.08);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-brand h1 {
+  margin: 0;
+  font-size: clamp(2rem, 2.5vw, 2.6rem);
+  color: #3c2d55;
+}
+
+.login-brand p {
+  margin: 10px auto 0;
+  max-width: 320px;
+  color: #6b5f7f;
+  line-height: 1.5;
+}
+
+.login-form {
+  display: grid;
+  gap: 18px;
+}
+
+.form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  color: #4f4360;
+}
+
+.form-group input {
+  width: 100%;
+  background: #f8f5ff;
+  border: 1px solid #d9d3ea;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #3c2d55;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: #7f70a9;
+  box-shadow: 0 0 0 4px rgba(124, 102, 189, 0.12);
+}
+
+.btn-primary {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #3c2d55;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: #2f2448;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled,
+.btn-primary[disabled] {
+  background: #b3a9c3;
+  color: #5f5472;
+  cursor: not-allowed;
+  opacity: 0.75;
+  transform: none;
+}
+
+.btn-primary:disabled:hover,
+.btn-primary[disabled]:focus {
+  background: #b3a9c3;
+  transform: none;
+}
+
+@media (max-width: 480px) {
+  .login-panel {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+}
+
+/* Estilos gerais para páginas de painel */
+.change-panel {
+  width: min(720px, 100%);
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.flex-1 {
+  flex: 1 1 320px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f4efff;
+  border: 1px solid #d9d3ea;
+  color: #3c2d55;
+  border-radius: 14px;
+  padding: 14px 18px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background: #e8e0fb;
+  border-color: #cbb9f0;
+  transform: translateY(-1px);
+}
+
+.btn-link {
+  display: inline-flex;
+  background: transparent;
+  color: #3c2d55;
+  border: none;
+  padding: 14px 18px;
+  text-decoration: none;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.btn-link:hover,
+.btn-link:focus {
+  background: rgba(60, 45, 85, 0.06);
+}
+
+.section-card {
+  background: #f8f5ff;
+  border: 1px solid #dcd4ec;
+  border-radius: 20px;
+  padding: 24px;
+  margin-top: 18px;
+}
+
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.section-card h2,
+.section-card legend {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #3c2d55;
+}
+
+.data-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.status-enabled {
+  background: rgba(80, 189, 116, 0.15);
+  color: #2f7d43;
+}
+
+.status-disabled {
+  background: rgba(217, 100, 90, 0.16);
+  color: #a33a2b;
+}
+
+.checkbox-row {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #3c2d55;
+}
+
+.input-indented {
+  padding-left: 28px;
+  display: grid;
+  gap: 10px;
+}
+
+.input-indented label {
+  font-weight: 500;
+  color: #4f4360;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.btn-small {
+  padding: 10px 16px;
+  border-radius: 12px;
+}
+
+@media (max-width: 680px) {
+  .login-panel {
+    padding: 28px 22px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+}

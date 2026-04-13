@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>RH-Set - Alterar campos</title>
+</head>
+<body>
+  <div class="page-shell">
+    <main class="login-panel change-panel">
+      <div class="login-brand">
+        <h1>Alterar dados</h1>
+        <p>Pesquise o colaborador para desabilitar ou habilitar seu acesso e alterar seus dados organizacionais</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="flash flash-{{ category }}">
+                      {{ message }}
+                  </div>
+              {% endfor %}
+          {% endif %}
+      {% endwith %}
+
+      <form method="post" action="{{ url_for('mudar_campos') }}" id="form-mudar-campos" class="login-form">
+        <input type="hidden" id="hidden_user" name="user" value="">
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="user_input">Usuário / e-mail</label>
+            <input id="user_input" type="text" placeholder="usuario@wk.com.br">
+          </div>
+          <button type="button" id="btn_buscar" class="btn-secondary btn-search">Buscar</button>
+        </div>
+
+        <div id="user_data_section" class="section-card" style="display:none;">
+          <div class="section-heading-row">
+            <h2>Dados do Usuário</h2>
+            <button type="button" id="btn_toggle" class="btn-secondary btn-small">Desabilitar Usuário</button>
+          </div>
+          <div class="data-grid">
+            <div><strong>Usuário:</strong> <span id="display_username">-</span></div>
+            <div><strong>Cargo:</strong> <span id="display_cargo">-</span></div>
+            <div><strong>Departamento:</strong> <span id="display_departamento">-</span></div>
+            <div><strong>Liderança:</strong> <span id="display_lideranca">-</span></div>
+            <div><strong>Status:</strong> <span id="display_status" class="status-badge status-enabled">Habilitado</span></div>
+          </div>
+        </div>
+
+        <fieldset id="options_fieldset" class="section-card" style="display:none;">
+          <legend>Opções de alteração</legend>
+
+          <div class="checkbox-row">
+            <label class="checkbox-label"><input type="checkbox" id="chk_cargo" name="chk_cargo" onchange="toggleField('chk_cargo','cargo_field')"> Alterar Cargo</label>
+            <div id="cargo_field" class="input-indented" style="display:none;">
+              <label for="cargo">Cargo</label>
+              <input id="cargo" name="cargo" type="text" placeholder="Cargo do colaborador">
+            </div>
+          </div>
+
+          <div class="checkbox-row">
+            <label class="checkbox-label"><input type="checkbox" id="chk_departamento" name="chk_departamento" onchange="toggleField('chk_departamento','departamento_field')"> Alterar Departamento</label>
+            <div id="departamento_field" class="input-indented" style="display:none;">
+              <label for="departamento">Departamento</label>
+              <input id="departamento" name="departamento" type="text" placeholder="Departamento">
+            </div>
+          </div>
+
+          <div class="checkbox-row">
+            <label class="checkbox-label"><input type="checkbox" id="chk_lider" name="chk_lider" onchange="toggleField('chk_lider','lider_field')"> Alterar Liderança Imediata</label>
+            <div id="lider_field" class="input-indented" style="display:none;">
+              <label for="lider">Liderança Imediata</label>
+              <input id="lider" name="lider" type="text" placeholder="Nome ou e-mail do líder">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="button-row">
+          <button type="submit" id="submit_button" class="btn-primary" disabled>Atualizar</button>
+          <a href="{{ url_for('logout') }}" class="btn-secondary btn-link">Sair</a>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+        let userDataCache = null;
+
+        // Buscar dados do usuário via AJAX
+        async function buscarDadosUsuario() {
+            const username = document.getElementById('user_input').value.trim();
+            if (!username) {
+                alert('Digite um usuário');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/user_status?username=${encodeURIComponent(username)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    userDataCache = data;
+                    exibirDadosUsuario(data);
+                } else {
+                    alert(data.error || 'Erro ao buscar usuário');
+                    document.getElementById('user_data_section').style.display = 'none';
+                    document.getElementById('options_fieldset').style.display = 'none';
+                    document.getElementById('submit_button').disabled = true;
+                    document.getElementById('hidden_user').value = '';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao buscar dados do usuário');
+                document.getElementById('user_data_section').style.display = 'none';
+                document.getElementById('options_fieldset').style.display = 'none';
+                document.getElementById('submit_button').disabled = true;
+                document.getElementById('hidden_user').value = '';
+            }
+        }
+
+        function exibirDadosUsuario(data) {
+            document.getElementById('display_username').textContent = data.username;
+            document.getElementById('display_cargo').textContent = data.cargo || '-';
+            document.getElementById('display_departamento').textContent = data.departamento || '-';
+            document.getElementById('display_lideranca').textContent = data.lideranca || '-';
+            
+            const statusSpan = document.getElementById('display_status');
+            const btnToggle = document.getElementById('btn_toggle');
+            
+            if (data.habilitado) {
+                statusSpan.textContent = '✓ Habilitado';
+                statusSpan.style.color = 'green';
+                btnToggle.textContent = 'Desabilitar Usuário';
+            } else {
+                statusSpan.textContent = '✗ Desabilitado';
+                statusSpan.style.color = 'red';
+                btnToggle.textContent = 'Habilitar Usuário';
+            }
+            
+            // Preencher o hidden field com o username para o form
+            document.getElementById('hidden_user').value = data.username;
+            document.getElementById('user_data_section').style.display = 'block';
+            document.getElementById('options_fieldset').style.display = 'block';
+            document.getElementById('submit_button').disabled = false;
+        }
+
+        // Toggle (habilitar/desabilitar) via AJAX
+        async function toggleUserStatus() {
+            if (!userDataCache) return;
+
+            try {
+                const response = await fetch('/api/toggle_user_status', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: userDataCache.username})
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    userDataCache.habilitado = data.habilitado;
+                    exibirDadosUsuario(userDataCache);
+                    alert(data.mensagem);
+                } else {
+                    alert(data.error || 'Erro ao atualizar status');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar status do usuário');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('btn_buscar').addEventListener('click', buscarDadosUsuario);
+        document.getElementById('btn_toggle').addEventListener('click', toggleUserStatus);
+        
+        // Validar ao submeter o formulário
+        document.getElementById('form-mudar-campos').addEventListener('submit', function(e) {
+            const hiddenUser = document.getElementById('hidden_user').value;
+            if (!hiddenUser) {
+                e.preventDefault();
+                alert('Busque um usuário primeiro');
+            }
+        });
+
+        // Permitir buscar ao pressionar Enter no campo de usuário
+        document.getElementById('user_input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarDadosUsuario();
+            }
+        });
+
+        const idleTimeoutMs = 3 * 60 * 1000; // 3 minutos
+        let idleTimer = null;
+
+        function resetIdleTimer() {
+            if (idleTimer) {
+                clearTimeout(idleTimer);
+            }
+            idleTimer = setTimeout(() => {
+                alert('Sem atividade por 3 minutos. Você será desconectado.');
+                window.location.href = '{{ url_for("logout") }}';
+            }, idleTimeoutMs);
+        }
+
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(eventName => {
+            document.addEventListener(eventName, resetIdleTimer, { passive: true });
+        });
+
+        resetIdleTimer();
+
+        function toggleField(checkboxId, fieldId) {
+            const cb = document.getElementById(checkboxId);
+            const fld = document.getElementById(fieldId);
+            if (!cb || !fld) return;
+            if (cb.checked) {
+                fld.style.display = 'block';
+                // habilitar input filho (se houver)
+                const inp = fld.querySelector('input');
+                if (inp) inp.removeAttribute('disabled');
+            } else {
+                fld.style.display = 'none';
+                const inp = fld.querySelector('input');
+                if (inp) inp.setAttribute('disabled', 'disabled');
+            }
+        }
+
+        // Inicializar: desabilitar campos que começam escondidos
+        document.addEventListener('DOMContentLoaded', function() {
+            ['cargo_field','departamento_field','lider_field'].forEach(function(id){
+                const fld = document.getElementById(id);
+                if (fld) {
+                    const inp = fld.querySelector('input');
+                    if (inp) inp.setAttribute('disabled','disabled');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

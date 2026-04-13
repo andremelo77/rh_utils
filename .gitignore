@@ -1,0 +1,47 @@
+# Ambiente virtual Python
+.venv/
+venv/
+env/
+
+# Arquivos de configuração sensíveis
+.env
+.env.local
+.env.production
+
+# Segredos encriptados (NUNCA versionar!)
+secrets.enc
+key.enc
+
+# Scripts de setup com credenciais
+setup_credentials.py
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de teste temporários
+teste.ldap.py
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários
+*.tmp
+*.temp
