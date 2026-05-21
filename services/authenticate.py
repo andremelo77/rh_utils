@@ -10,6 +10,7 @@ load_dotenv()
 AD_SERVER = os.getenv('AD_SERVER')
 AD_USE_SSL = os.getenv('AD_USE_SSL', 'True').lower() in ('1', 'true', 'yes')
 AD_BASE_DN = os.getenv('AD_BASE_DN')
+AD_SEARCH_BASE = os.getenv('AD_SEARCH_BASE')
 AD_ALLOWED_GROUP_DN = os.getenv('AD_ALLOWED_GROUP_DN')
 
 # Senha mestre para descriptografia (DEVE estar em variável de ambiente segura)
@@ -17,6 +18,26 @@ MASTER_PASSWORD = os.getenv('MASTER_PASSWORD')
 
 # Credenciais do serviço AD (carregadas de forma segura)
 AD_SERVICE_USER, AD_SERVICE_PASS = get_ad_service_credentials(MASTER_PASSWORD) if MASTER_PASSWORD else (None, None)
+
+
+def get_search_base():
+    """Retorna a base de pesquisa LDAP apropriada para buscas no AD."""
+    if AD_SEARCH_BASE:
+        return AD_SEARCH_BASE
+
+    if not AD_BASE_DN:
+        return None
+
+    dc_parts = [part.strip() for part in AD_BASE_DN.split(',') if part.strip().upper().startswith('DC=')]
+    if dc_parts:
+        return ','.join(dc_parts)
+
+    return AD_BASE_DN
+
+
+def get_user_search_base():
+    """Retorna a base de pesquisa ideal para localizar usuários."""
+    return get_search_base()
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +70,14 @@ def find_user_dn(username):
         logger.exception('Falha ao conectar com a conta de serviço')
         return None
 
+    search_base = get_user_search_base()
+    if not search_base:
+        logger.error('AD_BASE_DN ou AD_SEARCH_BASE não está configurado para localizar usuários')
+        return None
+
     search_filter = f"(|(sAMAccountName={username})(userPrincipalName={username}))"
     try:
-        conn.search(search_base='DC=wks,DC=local', search_filter=search_filter, search_scope=SUBTREE, attributes=['distinguishedName'])
+        conn.search(search_base=search_base, search_filter=search_filter, search_scope=SUBTREE, attributes=['distinguishedName'])
         if conn.entries:
             return conn.entries[0].distinguishedName.value
     except Exception:
@@ -73,6 +99,11 @@ def is_user_in_allowed_group(user_dn):
         logger.error('Configuração do AD incompleta para verificação de grupo')
         return False
 
+    search_base = get_search_base()
+    if not search_base:
+        logger.error('AD_BASE_DN ou AD_SEARCH_BASE não está configurado para verificação de grupo')
+        return False
+
     server = Server(AD_SERVER, use_ssl=AD_USE_SSL, get_info=ALL)
     try:
         conn = Connection(server, user=AD_SERVICE_USER, password=AD_SERVICE_PASS, auto_bind=True)
@@ -84,7 +115,7 @@ def is_user_in_allowed_group(user_dn):
             f'(member:1.2.840.113556.1.4.1941:={user_dn})'
             ')'
         )
-        conn.search(search_base='DC=wks,DC=local', search_filter=search_filter, search_scope=SUBTREE, attributes=['distinguishedName'])
+        conn.search(search_base=search_base, search_filter=search_filter, search_scope=SUBTREE, attributes=['distinguishedName'])
         found = bool(conn.entries)
         conn.unbind()
         return found

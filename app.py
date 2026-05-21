@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response
+from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFError, generate_csrf
 from functools import wraps
 import services.authenticate as auth
 import services.actions as actions
@@ -10,20 +12,18 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret')
 app.permanent_session_lifetime = timedelta(minutes=3)
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['WTF_CSRF_TIME_LIMIT'] = None
+csrf = CSRFProtect(app)
+app.jinja_env.globals['csrf_token'] = generate_csrf
 
 def no_cache(f):
     """Decorator para desabilitar cache em rotas protegidas."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         response = f(*args, **kwargs)
-        # Se response é uma string (template renderizado), converte para Response
-        if isinstance(response, str):
-            from flask import make_response
-            response = make_response(response)
-        elif not hasattr(response, 'headers'):
-            # Se for redirect ou tuple, processa normalmente
-            return response
-        
+        response = make_response(response)
+
         # Adicionar headers anti-cache
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         response.headers['Pragma'] = 'no-cache'
@@ -72,7 +72,8 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         if not username or not password:
-            return redirect(url_for('login'))
+            flash('Usuário e senha são obrigatórios.', 'warning')
+            return render_template('login.html')
 
         ok = auth.authenticate_user(username, password)
         if ok:
@@ -81,9 +82,15 @@ def login():
             session['last_activity'] = datetime.utcnow().isoformat()
             return redirect(url_for('mudar_campos'))
         else:
-            return redirect(url_for('login'))
+            flash('Credenciais inválidas ou usuário não autorizado.', 'error')
+            return render_template('login.html')
 
     return render_template('login.html')
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    flash('Erro de segurança. Recarregue a página e tente novamente.', 'error')
+    return render_template('login.html'), 400
 
 @app.route('/logout')
 def logout():
@@ -159,9 +166,11 @@ def api_user_status():
 @api_login_required
 def api_toggle_user_status():
     """API: Habilita ou desabilita usuário com base no status atual."""
-    data = request.get_json()
-    username = data.get('username', '').strip() if data else ''
-    
+    data = request.get_json(silent=True)
+    if not data:
+        return {'error': 'JSON inválido ou não enviado'}, 400
+
+    username = data.get('username', '').strip()
     if not username:
         return {'error': 'Usuário obrigatório'}, 400
     

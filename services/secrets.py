@@ -3,7 +3,9 @@ Gerenciamento seguro de segredos usando criptografia simétrica (Fernet).
 Este módulo criptografa senhas e outros segredos em arquivos, mantendo-os seguros.
 """
 
+import ast
 import os
+import json
 import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -67,7 +69,12 @@ def save_encrypted_secret(secret_name: str, secret_value: str, master_password: 
                 encrypted_data = f.read()
             try:
                 decrypted_data = fernet.decrypt(encrypted_data).decode()
-                secrets = eval(decrypted_data)  # Converte string para dict
+                try:
+                    secrets = json.loads(decrypted_data)
+                except json.JSONDecodeError:
+                    secrets = ast.literal_eval(decrypted_data)
+                    if not isinstance(secrets, dict):
+                        raise ValueError('Formato de segredos inválido')
             except Exception:
                 logger.warning("Falha ao descriptografar segredos existentes, criando novo arquivo")
 
@@ -75,7 +82,7 @@ def save_encrypted_secret(secret_name: str, secret_value: str, master_password: 
         secrets[secret_name] = secret_value
 
         # Encriptar e salvar
-        secrets_str = str(secrets)
+        secrets_str = json.dumps(secrets)
         encrypted_data = fernet.encrypt(secrets_str.encode())
 
         with open(SECRETS_FILE, 'wb') as f:
@@ -114,7 +121,12 @@ def get_encrypted_secret(secret_name: str, master_password: str) -> str:
             encrypted_data = f.read()
 
         decrypted_data = fernet.decrypt(encrypted_data).decode()
-        secrets = eval(decrypted_data)  # Converte string para dict
+        try:
+            secrets = json.loads(decrypted_data)
+        except json.JSONDecodeError:
+            secrets = ast.literal_eval(decrypted_data)
+            if not isinstance(secrets, dict):
+                raise ValueError('Formato de segredos inválido')
 
         return secrets.get(secret_name)
 

@@ -26,6 +26,7 @@
       {% endwith %}
 
       <form method="post" action="{{ url_for('mudar_campos') }}" id="form-mudar-campos" class="login-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" id="hidden_user" name="user" value="">
 
         <div class="form-row">
@@ -87,6 +88,7 @@
   </div>
 
   <script>
+        const csrfToken = '{{ csrf_token() }}';
         let userDataCache = null;
 
         // Buscar dados do usuário via AJAX
@@ -154,7 +156,10 @@
             try {
                 const response = await fetch('/api/toggle_user_status', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
                     body: JSON.stringify({username: userDataCache.username})
                 });
                 const data = await response.json();
