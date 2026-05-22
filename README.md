@@ -123,7 +123,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 4. Use `gunicorn` em produção:
    ```bash
 gunicorn -w 4 -b 0.0.0.0:5000 app:app
-   ```
+      ```
 5. Proteja a aplicação com `nginx` como proxy reverso e habilite HTTPS.
 
 ### Exemplo de serviço systemd
