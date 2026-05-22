@@ -17,6 +17,15 @@
 
       {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
+              <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                      const flashMessages = {{ messages|tojson }};
+                      const messageText = flashMessages.map(function(item) { return item[1]; }).join('\n');
+                      if (messageText) {
+                          alert(messageText);
+                      }
+                  });
+              </script>
               {% for category, message in messages %}
                   <div class="flash flash-{{ category }}">
                       {{ message }}

@@ -14,7 +14,20 @@
           <h1>RHutils</h1>
         </div>
 
-        <form method="post" action="{{ url_for('login') }}" class="login-form">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                      const flashMessages = {{ messages|tojson }};
+                      const messageText = flashMessages.map(function(item) { return item[1]; }).join('\n');
+                      if (messageText) {
+                          alert(messageText);
+                      }
+                  });
+              </script>
+          {% endif %}
+      {% endwith %}
+      <form method="post" action="{{ url_for('login') }}" class="login-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <div class="form-group">
             <label for="username">Usuário</label>
