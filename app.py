@@ -114,6 +114,16 @@ def logout():
     response.headers['Expires'] = '0'
     return response
 
+@app.route('/health')
+def health():
+    """Health check endpoint para Docker/orquestração."""
+    return {
+        'status': 'healthy',
+        'service': 'rh-pro',
+        'environment': FLASK_ENV,
+        'timestamp': datetime.utcnow().isoformat()
+    }, 200
+
 @app.route('/')
 @login_required
 def index():

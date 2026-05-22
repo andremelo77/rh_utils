@@ -2,6 +2,29 @@
 
 Aplicação Flask para gerenciamento de usuários no Active Directory com autenticação segura.
 
+> **NOVO:** Agora com suporte completo a Docker Compose! Veja [QUICK_START.md](QUICK_START.md) para começar em 5 minutos.
+
+## Docker Compose (Recomendado)
+
+**Forma mais rápida de começar:**
+
+```bash
+cp .env.example .env          # Configure variáveis
+nano .env                      # Altere os valores
+python setup_credentials.py    # Gere secrets
+docker-compose build           # Build
+docker-compose up -d           # Inicie
+curl http://localhost:5000     # Teste
+```
+
+**Documentacao Docker:**
+- [QUICK_START.md](QUICK_START.md) - 5 minutos para começar
+- [README.Docker.md](README.Docker.md) - Guia detalhado
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Deploy em producao
+- [Makefile](Makefile) - Comandos convenientes: `make help`
+
+---
+
 ## � Visão Geral
 
 Sistema web para gerenciamento de usuários do Active Directory, com interface responsiva e controle de acesso baseado em grupos.
@@ -112,19 +135,24 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 ```
 
 ### Deploy Linux recomendado
-1. Crie a venv e instale dependências:
+1. No Ubuntu Server, instale o Python e ferramentas necessárias:
+   ```bash
+   sudo apt update
+   sudo apt install python3 python3-venv python3-pip nginx
+   ```
+2. Crie a venv e instale dependências:
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
-2. Configure o arquivo `.env` com as variáveis do ambiente e a senha mestre.
-3. Execute `python setup_credentials.py` para gerar `secrets.enc` e `key.enc`.
-4. Use `gunicorn` em produção:
+3. Configure o arquivo `.env` com as variáveis do ambiente e a senha mestre.
+4. Execute `python setup_credentials.py` para gerar `secrets.enc` e `key.enc`.
+5. Use `gunicorn` em produção:
    ```bash
    gunicorn -w 4 -b 0.0.0.0:5000 app:app
    ```
-5. Proteja a aplicação com `nginx` como proxy reverso e habilite HTTPS.
+6. Proteja a aplicação com `nginx` como proxy reverso e habilite HTTPS.
 
 ### Exemplo de serviço systemd
 ```ini
