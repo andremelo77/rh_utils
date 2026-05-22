@@ -203,6 +203,7 @@ python app.py
 # Flask
 SECRET_KEY=your-super-secret-key-change-in-production
 FLASK_ENV=development
+FLASK_DEBUG=False
 
 # Segurança
 MASTER_PASSWORD=sua_senha_mestre_forte
@@ -215,7 +216,7 @@ AD_SEARCH_BASE=DC=empresa,DC=local
 AD_ALLOWED_GROUP_DN=CN=Grupo_Autorizado,OU=Grupos,DC=empresa,DC=local
 ```
 
-> Em produção, defina `FLASK_ENV=production` e um `SECRET_KEY` forte. O app exige `SECRET_KEY` em produção.
+> Em produção, defina `FLASK_ENV=production`, `FLASK_DEBUG=False` e um `SECRET_KEY` forte. O app exige `SECRET_KEY` em produção.
 
 ## 🤝 Contribuição
 
