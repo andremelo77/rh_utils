@@ -13,7 +13,7 @@ secrets.enc
 key.enc
 
 # Scripts de setup com credenciais
-setup_credentials.py
+#etup_credentials.py
 
 # Cache Python
 __pycache__/
