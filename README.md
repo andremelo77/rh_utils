@@ -103,11 +103,61 @@ python app.py
 
 ### Produção (Recomendado)
 ```bash
-# Adicione gunicorn ao requirements.txt
-pip install gunicorn
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-# Execute com múltiplos workers
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
+# Execute com múltiplos workers em Linux
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
+
+### Deploy Linux recomendado
+1. Crie a venv e instale dependências:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+2. Configure o arquivo `.env` com as variáveis do ambiente e a senha mestre.
+3. Execute `python setup_credentials.py` para gerar `secrets.enc` e `key.enc`.
+4. Use `gunicorn` em produção:
+   ```bash
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+   ```
+5. Proteja a aplicação com `nginx` como proxy reverso e habilite HTTPS.
+
+### Exemplo de serviço systemd
+```ini
+[Unit]
+Description=RH Pro Flask App
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/rh_pro
+EnvironmentFile=/var/www/rh_pro/.env
+ExecStart=/var/www/rh_pro/.venv/bin/gunicorn -w 4 -b 127.0.0.1:5000 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Exemplo básico de proxy nginx
+```nginx
+server {
+    listen 80;
+    server_name exemplo.seudominio.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 ```
 
 ## 📁 Estrutura do Projeto
@@ -160,9 +210,12 @@ MASTER_PASSWORD=sua_senha_mestre_forte
 # Active Directory
 AD_SERVER=servidor-ad.empresa.local
 AD_USE_SSL=True
-AD_BASE_DN=OU=Usuarios,OU=Empresa,DC=empresa,DC=local
+AD_BASE_DN=OU=Usuarios,DC=empresa,DC=local
+AD_SEARCH_BASE=DC=empresa,DC=local
 AD_ALLOWED_GROUP_DN=CN=Grupo_Autorizado,OU=Grupos,DC=empresa,DC=local
 ```
+
+> Em produção, defina `FLASK_ENV=production` e um `SECRET_KEY` forte. O app exige `SECRET_KEY` em produção.
 
 ## 🤝 Contribuição
 

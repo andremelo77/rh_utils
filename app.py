@@ -9,10 +9,22 @@ import os
 import json
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'dev-secret')
+
+FLASK_ENV = os.getenv('FLASK_ENV', 'production')
+FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() in ('1', 'true', 'yes')
+SECRET_KEY = os.getenv('SECRET_KEY')
+
+if FLASK_ENV == 'production' and not SECRET_KEY:
+    raise RuntimeError('SECRET_KEY não configurado. Defina SECRET_KEY em .env para produção.')
+
+app.config['ENV'] = FLASK_ENV
+app.config['DEBUG'] = FLASK_DEBUG
+app.secret_key = SECRET_KEY or 'dev-secret'
 app.permanent_session_lifetime = timedelta(minutes=3)
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = FLASK_ENV == 'production'
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 csrf = CSRFProtect(app)
 app.jinja_env.globals['csrf_token'] = generate_csrf
@@ -191,4 +203,4 @@ def api_toggle_user_status():
         return {'error': mensagem}, 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)

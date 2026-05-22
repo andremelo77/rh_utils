@@ -3,3 +3,4 @@ ldap3
 python-dotenv
 cryptography
 Flask-WTF
+gunicorn
