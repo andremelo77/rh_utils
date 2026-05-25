@@ -18,3 +18,31 @@ input,
 button {
   font: inherit;
 }
+
+.btn-toggle-enabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: #198754;
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid #157347;
+  border-radius: 14px;
+  padding: 14px 18px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-toggle-disabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: #dc3545;
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid #b02a37;
+  border-radius: 14px;
+  padding: 14px 18px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}

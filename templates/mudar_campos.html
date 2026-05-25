@@ -49,7 +49,7 @@
         <div id="user_data_section" class="section-card" style="display:none;">
           <div class="section-heading-row">
             <h2>Dados do Usuário</h2>
-            <button type="button" id="btn_toggle" class="btn-secondary btn-small">Desabilitar Usuário</button>
+            <button type="button" id="btn_toggle">Desabilitar Usuário</button>
           </div>
           <div class="data-grid">
             <div><strong>Usuário:</strong> <span id="display_username">-</span></div>
@@ -145,10 +145,14 @@
                 statusSpan.textContent = '✓ Habilitado';
                 statusSpan.style.color = 'green';
                 btnToggle.textContent = 'Desabilitar Usuário';
+                btnToggle.classList.add('btn-toggle-disabled');
+                btnToggle.classList.remove('btn-toggle-enabled');
             } else {
                 statusSpan.textContent = '✗ Desabilitado';
                 statusSpan.style.color = 'red';
                 btnToggle.textContent = 'Habilitar Usuário';
+                btnToggle.classList.add('btn-toggle-enabled');
+                btnToggle.classList.remove('btn-toggle-disabled');
             }
             
             // Preencher o hidden field com o username para o form
