@@ -192,7 +192,20 @@
 
         // Event listeners
         document.getElementById('btn_buscar').addEventListener('click', buscarDadosUsuario);
-        document.getElementById('btn_toggle').addEventListener('click', toggleUserStatus);
+
+        // Show confirmation modal before toggling enable/disable
+        document.getElementById('btn_toggle').addEventListener('click', function() {
+            if (!userDataCache) return;
+            const isEnabled = !!userDataCache.habilitado;
+            const modal = document.getElementById('confirmModal');
+            const modalMessage = document.getElementById('confirmModalMessage');
+            const modalCheckbox = document.getElementById('confirmModalCheckbox');
+            modalCheckbox.checked = false;
+            modalMessage.textContent = `Você tem certeza dessa ação? Você está prestes a ${isEnabled ? 'desabilitar' : 'habilitar'} o usuário ${userDataCache.username}. Marque a caixa para confirmar.`;
+            modal.style.display = 'flex';
+            // focus the checkbox for accessibility
+            modalCheckbox.focus();
+        });
         
         // Validar ao submeter o formulário
         document.getElementById('form-mudar-campos').addEventListener('submit', function(e) {
@@ -256,6 +269,40 @@
                 }
             });
         });
+        
+        // Confirmation modal actions
+            function closeConfirmModal() {
+                const modal = document.getElementById('confirmModal');
+                if (modal) modal.style.display = 'none';
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                const cancelBtn = document.getElementById('confirmModalCancel');
+                const okBtn = document.getElementById('confirmModalOk');
+                if (cancelBtn) cancelBtn.addEventListener('click', function(){ closeConfirmModal(); });
+                if (okBtn) okBtn.addEventListener('click', async function(){
+                    const checkbox = document.getElementById('confirmModalCheckbox');
+                    if (!checkbox || !checkbox.checked) {
+                        alert('Você deve marcar a caixa para confirmar a ação.');
+                        if (checkbox) checkbox.focus();
+                        return;
+                    }
+                    closeConfirmModal();
+                    await toggleUserStatus();
+                });
+            });
     </script>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="confirm-modal" role="dialog" aria-modal="true" style="display:none;">
+        <div class="confirm-modal-content">
+            <h3>Confirmação de ação</h3>
+            <p id="confirmModalMessage">Você tem certeza dessa ação?</p>
+            <label class="confirm-checkbox"><input type="checkbox" id="confirmModalCheckbox"> Eu entendi e confirmo a ação</label>
+            <div class="confirm-modal-actions">
+                <button type="button" id="confirmModalCancel" class="btn-secondary">Cancelar</button>
+                <button type="button" id="confirmModalOk" class="btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
