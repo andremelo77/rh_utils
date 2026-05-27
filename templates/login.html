@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('image', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <title>RHutils - Login</title>
@@ -11,7 +12,8 @@
     <div class="page-shell">
       <main class="login-panel">
         <div class="login-brand">
-          <h1>RHutils</h1>
+          <h1 class="login-title">RH<span class="login-title-2">utils</span>
+          </h1>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -42,6 +44,9 @@
           <button type="submit" class="btn-primary">Entrar</button>
         </form>
       </main>
+      <div class="page-logo">
+        <img src="{{ url_for('image', filename='wk.png') }}" alt="WK logo">
+      </div>
     </div>
   </body>
 </html>

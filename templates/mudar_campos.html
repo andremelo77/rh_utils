@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('image', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <title>RH-Set - Alterar campos</title>
@@ -47,10 +48,24 @@
         </div>
 
         <div id="user_data_section" class="section-card" style="display:none;">
-          <div class="section-heading-row">
-            <h2>Dados do Usuário</h2>
-            <button type="button" id="btn_toggle">Desabilitar Usuário</button>
-          </div>
+                    <div class="section-heading-row">
+                        <h2>Dados do Usuário</h2>
+                        <!--
+                            A ação de "habilitar" usuário foi desativada intencionalmente nesta
+                            interface. Motivo:
+                            - Re-habilitar contas deve ser um procedimento controlado via
+                                processos de TI/segurança (registro de auditoria, justificativa
+                                formal, verificação de identidade) — não por uma ação rápida
+                                na interface do operador.
+                            - Para evitar reativações acidentais ou não autorizadas, a
+                                funcionalidade de habilitar foi removida do fluxo de UI.
+                            Caso seja necessário reverter essa decisão no futuro, a lógica
+                            original (trocar o texto do botão para "Habilitar Usuário" e
+                            chamar a API correspondente) está documentada no trecho JS
+                            abaixo como referência.
+                        -->
+                        <button type="button" id="btn_toggle">Desabilitar Usuário</button>
+                    </div>
           <div class="data-grid">
             <div><strong>Usuário:</strong> <span id="display_username">-</span></div>
             <div><strong>Cargo:</strong> <span id="display_cargo">-</span></div>
@@ -94,6 +109,9 @@
         </div>
       </form>
     </main>
+    <div class="page-logo">
+      <img src="{{ url_for('image', filename='wk.png') }}" alt="WK logo">
+    </div>
   </div>
 
   <script>
@@ -147,12 +165,14 @@
                 btnToggle.textContent = 'Desabilitar Usuário';
                 btnToggle.classList.add('btn-toggle-disabled');
                 btnToggle.classList.remove('btn-toggle-enabled');
+                // Mostrar o botão quando o usuário está habilitado
+                btnToggle.style.display = '';
             } else {
                 statusSpan.textContent = '✗ Desabilitado';
                 statusSpan.style.color = 'red';
-                btnToggle.textContent = 'Habilitar Usuário';
-                btnToggle.classList.add('btn-toggle-enabled');
-                btnToggle.classList.remove('btn-toggle-disabled');
+                // Ocultar o botão quando o usuário já está desabilitado.
+                // Habilitação via UI/API foi desativada por políticas de segurança.
+                btnToggle.style.display = 'none';
             }
             
             // Preencher o hidden field com o username para o form
@@ -297,7 +317,7 @@
         <div class="confirm-modal-content">
             <h3>Confirmação de ação</h3>
             <p id="confirmModalMessage">Você tem certeza dessa ação?</p>
-            <label class="confirm-checkbox"><input type="checkbox" id="confirmModalCheckbox"> Eu entendi e confirmo a ação</label>
+            <label class="confirm-checkbox"><input type="checkbox" id="confirmModalCheckbox"> Eu entendi e confirmo</label>
             <div class="confirm-modal-actions">
                 <button type="button" id="confirmModalCancel" class="btn-secondary">Cancelar</button>
                 <button type="button" id="confirmModalOk" class="btn-primary">OK</button>

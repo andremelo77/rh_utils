@@ -81,3 +81,14 @@ button {
   align-items: center;
   gap: 8px;
 }
+
+.page-logo {
+  margin-top: 0px;
+  text-align: center;
+}
+
+.page-logo img {
+  max-width: 100px;
+  height: auto;
+  display: inline-block;
+}

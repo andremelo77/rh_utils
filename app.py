@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response
+from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response, send_from_directory
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import CSRFError, generate_csrf
 from functools import wraps
@@ -102,6 +102,10 @@ def logout():
     response.headers['Expires'] = '0'
     return response
 
+@app.route('/image/<path:filename>')
+def image(filename):
+    return send_from_directory(os.path.join(app.root_path, 'image'), filename)
+
 @app.route('/')
 @login_required
 def index():
@@ -177,18 +181,20 @@ def api_toggle_user_status():
     encontrado, habilitado = actions.is_user_enabled(username)
     if not encontrado:
         return {'error': f'Usuário {username} não encontrado'}, 404
-    
-    # Se habilitado, desabilita; se desabilitado, habilita
+    # Se habilitado, desabilita; se desabilitado, NÃO será habilitado via API
+    # A re-habilitação de contas deve ocorrer via processo controlado de TI.
     if habilitado:
         sucesso, mensagem = actions.disable_user(username)
+        if sucesso:
+            novo_status_habilitado = False
+            return {'sucesso': True, 'habilitado': novo_status_habilitado, 'mensagem': mensagem}, 200
+        else:
+            return {'error': mensagem}, 500
     else:
-        sucesso, mensagem = actions.enable_user(username)
-    
-    if sucesso:
-        novo_status_habilitado = not habilitado
-        return {'sucesso': True, 'habilitado': novo_status_habilitado, 'mensagem': mensagem}, 200
-    else:
-        return {'error': mensagem}, 500
+        # Bloquear habilitação automática via endpoint para evitar contornos.
+        return {
+            'error': 'Habilitação via API/UI desativada. Contate TI para reativação.'
+        }, 403
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
